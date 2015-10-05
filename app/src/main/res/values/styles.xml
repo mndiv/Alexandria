@@ -3,6 +3,8 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/alexandria_blue</item>
+        <item name="colorPrimaryDark">@color/alexandria_dark_blue</item>
     </style>
 
 </resources>
