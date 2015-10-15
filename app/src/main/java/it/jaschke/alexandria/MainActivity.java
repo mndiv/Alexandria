@@ -12,10 +12,13 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
+
+import com.facebook.stetho.Stetho;
 
 import it.jaschke.alexandria.api.Callback;
 
@@ -26,6 +29,8 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment navigationDrawerFragment;
+    Toolbar toolbar;
+
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -47,6 +52,16 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
             setContentView(R.layout.activity_main);
         }
 
+//        toolbar = (Toolbar)findViewById(R.id.app_bar);
+//        setSupportActionBar(toolbar);
+
+        Stetho.initialize(
+                Stetho.newInitializerBuilder(this)
+                                    .enableDumpapp(
+                                     Stetho.defaultDumperPluginsProvider(this))
+                                     .enableWebKitInspector(Stetho.defaultInspectorModulesProvider(this))
+                                        .build());
+
         messageReciever = new MessageReciever();
         IntentFilter filter = new IntentFilter(MESSAGE_EVENT);
         LocalBroadcastManager.getInstance(this).registerReceiver(messageReciever,filter);
@@ -61,7 +76,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     }
 
     @Override
-    public void onNavigationDrawerItemSelected(int position) {
+        public void onNavigationDrawerItemSelected(int position) {
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment nextFragment;
