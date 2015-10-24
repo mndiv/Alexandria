@@ -8,7 +8,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import android.util.Log;
 
 /**
  * Created by saj on 24/12/14.
@@ -265,6 +264,19 @@ public class BookProvider extends ContentProvider {
                 rowsDeleted = db.delete(
                         AlexandriaContract.BookEntry.TABLE_NAME,
                         AlexandriaContract.BookEntry._ID + " = '" + ContentUris.parseId(uri) + "'",
+                        selectionArgs);
+                break;
+            case AUTHOR_ID:
+                rowsDeleted = db.delete(
+                        AlexandriaContract.AuthorEntry.TABLE_NAME,
+                        AlexandriaContract.AuthorEntry._ID + " = '" + ContentUris.parseId(uri) + "'",
+                        selectionArgs);
+                break;
+
+            case CATEGORY_ID:
+                rowsDeleted = db.delete(
+                        AlexandriaContract.CategoryEntry.TABLE_NAME,
+                        AlexandriaContract.CategoryEntry._ID + " = '" + ContentUris.parseId(uri) + "'",
                         selectionArgs);
                 break;
             default:

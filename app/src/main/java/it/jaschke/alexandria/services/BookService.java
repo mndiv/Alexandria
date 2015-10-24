@@ -63,6 +63,8 @@ public class BookService extends IntentService {
     private void deleteBook(String ean) {
         if(ean!=null) {
             getContentResolver().delete(AlexandriaContract.BookEntry.buildBookUri(Long.parseLong(ean)), null, null);
+            getContentResolver().delete(AlexandriaContract.AuthorEntry.buildAuthorUri(Long.parseLong(ean)),null,null);
+            getContentResolver().delete(AlexandriaContract.CategoryEntry.buildCategoryUri(Long.parseLong(ean)), null, null);
         }
     }
 
@@ -84,9 +86,11 @@ public class BookService extends IntentService {
                 null  // sort order
         );
 
-        if(bookEntry.getCount()>0){
-            bookEntry.close();
-            return;
+        if (bookEntry != null) {
+            if(bookEntry.getCount()>0){
+                bookEntry.close();
+                return;
+            }
         }
 
         bookEntry.close();
@@ -213,21 +217,27 @@ public class BookService extends IntentService {
 
     private void writeBackAuthors(String ean, JSONArray jsonArray) throws JSONException {
         ContentValues values= new ContentValues();
+        String authors = "";
         for (int i = 0; i < jsonArray.length(); i++) {
-            values.put(AlexandriaContract.AuthorEntry._ID, ean);
-            values.put(AlexandriaContract.AuthorEntry.AUTHOR, jsonArray.getString(i));
-            getContentResolver().insert(AlexandriaContract.AuthorEntry.CONTENT_URI, values);
-            values= new ContentValues();
+            authors = authors + jsonArray.getString(i) + ",";
         }
+        String authorList = authors.substring(0,authors.length()-1);
+        values.put(AlexandriaContract.AuthorEntry._ID, ean);
+        values.put(AlexandriaContract.AuthorEntry.AUTHOR,authorList );
+        getContentResolver().insert(AlexandriaContract.AuthorEntry.CONTENT_URI, values);
+       // values= new ContentValues();
     }
 
     private void writeBackCategories(String ean, JSONArray jsonArray) throws JSONException {
-        ContentValues values= new ContentValues();
+        ContentValues values = new ContentValues();
+        String categories = "";
         for (int i = 0; i < jsonArray.length(); i++) {
-            values.put(AlexandriaContract.CategoryEntry._ID, ean);
-            values.put(AlexandriaContract.CategoryEntry.CATEGORY, jsonArray.getString(i));
-            getContentResolver().insert(AlexandriaContract.CategoryEntry.CONTENT_URI, values);
-            values= new ContentValues();
+            categories = categories + jsonArray.getString(i);
         }
+        String categoryList = categories.substring(0, categories.length() - 1);
+        values.put(AlexandriaContract.CategoryEntry._ID, ean);
+        values.put(AlexandriaContract.CategoryEntry.CATEGORY, categoryList);
+        getContentResolver().insert(AlexandriaContract.CategoryEntry.CONTENT_URI, values);
     }
+
  }
