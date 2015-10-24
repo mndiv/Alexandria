@@ -52,8 +52,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
             setContentView(R.layout.activity_main);
         }
 
-//        toolbar = (Toolbar)findViewById(R.id.app_bar);
-//        setSupportActionBar(toolbar);
 
         Stetho.initialize(
                 Stetho.newInitializerBuilder(this)
@@ -74,6 +72,8 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         navigationDrawerFragment.setUp(R.id.navigation_drawer,
                     (DrawerLayout) findViewById(R.id.drawer_layout));
     }
+
+
 
     @Override
         public void onNavigationDrawerItemSelected(int position) {
@@ -176,6 +176,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     }
 
     public void goBack(View view){
+
         getSupportFragmentManager().popBackStack();
     }
 
