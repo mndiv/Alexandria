@@ -46,11 +46,11 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         IS_TABLET = isTablet();
-        if(IS_TABLET){
-            setContentView(R.layout.activity_main_tablet);
-        }else {
+//        if(IS_TABLET){
+//            setContentView(R.layout.activity_main);
+//        }else {
             setContentView(R.layout.activity_main);
-        }
+//        }
 
 
         Stetho.initialize(
