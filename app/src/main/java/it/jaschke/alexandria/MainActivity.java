@@ -52,6 +52,11 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
             setContentView(R.layout.activity_main);
 //        }
 
+//        if(savedInstanceState == null){
+//            getSupportFragmentManager().beginTransaction()
+//                    .add(R.id.right_container, new DetailFragment())
+//                    .commit();
+//        }
 
         Stetho.initialize(
                 Stetho.newInitializerBuilder(this)
@@ -85,15 +90,25 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
             default:
             case 0:
                 nextFragment = new ListOfBooks();
+                if(findViewById(R.id.right_container) != null){
+                    getSupportFragmentManager().popBackStack();
+                }
                 break;
             case 1:
                 nextFragment = new AddBook();
+                if(findViewById(R.id.right_container) != null){
+                    getSupportFragmentManager().popBackStack();
+                }
                 break;
             case 2:
                 nextFragment = new About();
+                if(findViewById(R.id.right_container) != null){
+                    getSupportFragmentManager().popBackStack();
+                }
                 break;
 
         }
+
 
         fragmentManager.beginTransaction()
                 .replace(R.id.container, nextFragment)
