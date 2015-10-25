@@ -225,6 +225,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         String bookSubTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.SUBTITLE));
         ((TextView) rootView.findViewById(R.id.bookSubTitle)).setText(bookSubTitle);
 
+        rootView.findViewById(R.id.by).setVisibility(View.VISIBLE);
         String authors = data.getString(data.getColumnIndex(AlexandriaContract.AuthorEntry.AUTHOR));
         if(authors != null) {
             String[] authorsArr = authors.split(",");
