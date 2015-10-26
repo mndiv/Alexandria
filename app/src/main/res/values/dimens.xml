@@ -9,4 +9,5 @@
          https://developer.android.com/design/patterns/navigation-drawer.html -->
     <dimen name="navigation_drawer_width">240dp</dimen>
     <dimen name="app_bar_top_padding">0dp</dimen>
+    <dimen name="today_icon">128dp</dimen>
 </resources>

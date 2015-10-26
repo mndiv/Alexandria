@@ -1,7 +1,9 @@
 package it.jaschke.alexandria;
 
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -86,6 +88,7 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
         );
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor data) {
         if (!data.moveToFirst()) {
@@ -99,7 +102,8 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
         shareIntent.setType("text/plain");
         shareIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.share_text) + bookTitle);
-        shareActionProvider.setShareIntent(shareIntent);
+        if(shareActionProvider != null)
+            shareActionProvider.setShareIntent(shareIntent);
 
         String bookSubTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.SUBTITLE));
         ((TextView) rootView.findViewById(R.id.fullBookSubTitle)).setText(bookSubTitle);
@@ -137,7 +141,7 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
     public void onPause() {
         super.onDestroyView();
 
-        //Todo divya
+        //Todo
 //        if(MainActivity.IS_TABLET && rootView.findViewById(R.id.right_container)==null){
 //            getActivity().getSupportFragmentManager().popBackStack();
 //        }
