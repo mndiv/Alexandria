@@ -49,20 +49,20 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 //        if(IS_TABLET){
 //            setContentView(R.layout.activity_main_tablet);
 //        }else {
-            setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main);
         //}
 
 
         Stetho.initialize(
                 Stetho.newInitializerBuilder(this)
-                                    .enableDumpapp(
-                                     Stetho.defaultDumperPluginsProvider(this))
-                                     .enableWebKitInspector(Stetho.defaultInspectorModulesProvider(this))
-                                        .build());
+                        .enableDumpapp(
+                                Stetho.defaultDumperPluginsProvider(this))
+                        .enableWebKitInspector(Stetho.defaultInspectorModulesProvider(this))
+                        .build());
 
         messageReciever = new MessageReciever();
         IntentFilter filter = new IntentFilter(MESSAGE_EVENT);
-        LocalBroadcastManager.getInstance(this).registerReceiver(messageReciever,filter);
+        LocalBroadcastManager.getInstance(this).registerReceiver(messageReciever, filter);
 
         navigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -70,30 +70,39 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
         // Set up the drawer.
         navigationDrawerFragment.setUp(R.id.navigation_drawer,
-                    (DrawerLayout) findViewById(R.id.drawer_layout));
+                (DrawerLayout) findViewById(R.id.drawer_layout));
     }
 
 
-
     @Override
-        public void onNavigationDrawerItemSelected(int position) {
+    public void onNavigationDrawerItemSelected(int position) {
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment nextFragment;
 
-        switch (position){
+        switch (position) {
             default:
             case 0:
                 nextFragment = new ListOfBooks();
+                if (findViewById(R.id.right_container) != null) {
+                    getSupportFragmentManager().popBackStack();
+                }
                 break;
             case 1:
                 nextFragment = new AddBook();
+                if (findViewById(R.id.right_container) != null) {
+                    getSupportFragmentManager().popBackStack();
+                }
                 break;
             case 2:
                 nextFragment = new About();
+                if (findViewById(R.id.right_container) != null) {
+                    getSupportFragmentManager().popBackStack();
+                }
                 break;
 
         }
+
 
         fragmentManager.beginTransaction()
                 .replace(R.id.container, nextFragment)
@@ -156,7 +165,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         fragment.setArguments(args);
 
         int id = R.id.container;
-        if(findViewById(R.id.right_container) != null){
+        if (findViewById(R.id.right_container) != null) {
             id = R.id.right_container;
         }
         getSupportFragmentManager().beginTransaction()
@@ -169,13 +178,13 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     private class MessageReciever extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(intent.getStringExtra(MESSAGE_KEY)!=null){
+            if (intent.getStringExtra(MESSAGE_KEY) != null) {
                 Toast.makeText(MainActivity.this, intent.getStringExtra(MESSAGE_KEY), Toast.LENGTH_LONG).show();
             }
         }
     }
 
-    public void goBack(View view){
+    public void goBack(View view) {
 
         getSupportFragmentManager().popBackStack();
     }
@@ -188,7 +197,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
     @Override
     public void onBackPressed() {
-        if(getSupportFragmentManager().getBackStackEntryCount()<2){
+        if (getSupportFragmentManager().getBackStackEntryCount() < 2) {
             finish();
         }
         super.onBackPressed();
