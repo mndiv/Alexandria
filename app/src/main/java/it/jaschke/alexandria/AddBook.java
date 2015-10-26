@@ -8,6 +8,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.hardware.Camera;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -34,6 +36,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
     private Camera mCamera;
     private CameraPreview mPreview;
+    private boolean mHasNetwork;
     private static final String TAG = "INTENT_TO_SCAN_ACTIVITY";
     private EditText ean;
     private final int LOADER_ID = 1;
@@ -67,7 +70,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
             startActivityForResult(intent, 0);
         } catch (ActivityNotFoundException e) {
             //on catch, show the download dialog
-           showDialog(mContext, "No Scanner Found", "Download a scanner code activity?", "Yes", "No").show();
+            showDialog(mContext, "No Scanner Found", "Download a scanner code activity?", "Yes", "No").show();
         }
     }
 
@@ -107,7 +110,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     }
 
 
-      @Override
+    @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         rootView = inflater.inflate(R.layout.fragment_add_book, container, false);
@@ -136,12 +139,18 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                     clearFields();
                     return;
                 }
-                //Once we have an ISBN, start a book intent
-                Intent bookIntent = new Intent(getActivity(), BookService.class);
-                bookIntent.putExtra(BookService.EAN, ean);
-                bookIntent.setAction(BookService.FETCH_BOOK);
-                getActivity().startService(bookIntent);
-                AddBook.this.restartLoader();
+                isNetworkAvailable();
+                if (mHasNetwork) {
+                    //Once we have an ISBN, start a book intent
+                    Intent bookIntent = new Intent(getActivity(), BookService.class);
+                    bookIntent.putExtra(BookService.EAN, ean);
+                    bookIntent.setAction(BookService.FETCH_BOOK);
+                    getActivity().startService(bookIntent);
+                    AddBook.this.restartLoader();
+                } else {
+                    Toast.makeText(getActivity(), R.string.empty_book_list_no_network,
+                            Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -227,7 +236,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 
         rootView.findViewById(R.id.by).setVisibility(View.VISIBLE);
         String authors = data.getString(data.getColumnIndex(AlexandriaContract.AuthorEntry.AUTHOR));
-        if(authors != null) {
+        if (authors != null) {
             String[] authorsArr = authors.split(",");
             ((TextView) rootView.findViewById(R.id.authors)).setLines(authorsArr.length);
             ((TextView) rootView.findViewById(R.id.authors)).setText(authors.replace(",", "\n"));
@@ -249,6 +258,18 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     @Override
     public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
 
+    }
+
+    /**
+     * Returns true if the network is available or about to become available.
+     */
+    public void isNetworkAvailable() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        mHasNetwork = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
     }
 
     private void clearFields() {
