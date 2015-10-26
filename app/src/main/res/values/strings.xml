@@ -34,4 +34,6 @@
 
     <string name="empty_book_list">No Book Information Available</string>
     <string name="empty_book_list_no_network">No Book information available. The network is not available to fetch book</string>
+    <string name="dialog_positive_button_text">OK</string>
+    <string name="action_about">About</string>
 </resources>

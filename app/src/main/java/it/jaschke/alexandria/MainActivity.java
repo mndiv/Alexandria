@@ -1,7 +1,9 @@
 package it.jaschke.alexandria;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
@@ -93,13 +95,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
                     getSupportFragmentManager().popBackStack();
                 }
                 break;
-            case 2:
-                nextFragment = new About();
-                if (findViewById(R.id.right_container) != null) {
-                    getSupportFragmentManager().popBackStack();
-                }
-                break;
-
         }
 
 
@@ -144,6 +139,21 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         if (id == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
+        }
+
+        if (id == R.id.action_about) {
+            //Show About Dialog
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.action_about)
+                    .setMessage(R.string.about_text)
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                           // Toast.makeText, "Pressed OK", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .show();
+
         }
 
         return super.onOptionsItemSelected(item);
