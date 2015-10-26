@@ -7,7 +7,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,8 +23,9 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
 
     private BookListAdapter bookListAdapter;
     private ListView bookList;
-    private int position = ListView.INVALID_POSITION;
+    private int mPosition = ListView.INVALID_POSITION;
     private EditText searchText;
+    private static final String SELECTED_KEY = "selected_position";
 
     private final int LOADER_ID = 10;
 
@@ -73,10 +73,35 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
                     ((Callback)getActivity())
                             .onItemSelected(cursor.getString(cursor.getColumnIndex(AlexandriaContract.BookEntry._ID)));
                 }
+                mPosition  = position;
             }
         });
 
+        if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
+            // The listview probably hasn't even been populated yet.  Actually perform the
+            // swapout in onLoadFinished.
+            mPosition = savedInstanceState.getInt(SELECTED_KEY);
+        }
+
+        
         return rootView;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().initLoader(LOADER_ID, null, this);
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        // When tablets rotate, the currently selected list item needs to be saved.
+        // When no item is selected, mPosition will be set to Listview.INVALID_POSITION,
+        // so check for that before storing.
+        if (mPosition != ListView.INVALID_POSITION) {
+            outState.putInt(SELECTED_KEY, mPosition);
+        }
+        super.onSaveInstanceState(outState);
     }
 
     private void restartLoader(){
@@ -114,8 +139,8 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         bookListAdapter.swapCursor(data);
-        if (position != ListView.INVALID_POSITION) {
-            bookList.smoothScrollToPosition(position);
+        if (mPosition != ListView.INVALID_POSITION) {
+            bookList.smoothScrollToPosition(mPosition);
         }
     }
 
