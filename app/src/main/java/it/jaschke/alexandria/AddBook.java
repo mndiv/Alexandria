@@ -1,16 +1,12 @@
 package it.jaschke.alexandria;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.hardware.Camera;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -25,6 +21,11 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
+
+import java.util.ArrayList;
 
 import it.jaschke.alexandria.CameraPreview.CameraPreview;
 import it.jaschke.alexandria.data.AlexandriaContract;
@@ -61,50 +62,20 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         }
     }
 
-    //Scanning Functionality
-    public void scanBar() {
-        try {
-            //start the scanning activity from the com.google.zxing.client.android.SCAN intent
-            Intent intent = new Intent(ACTION_SCAN);
-            intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
-            startActivityForResult(intent, 0);
-        } catch (ActivityNotFoundException e) {
-            //on catch, show the download dialog
-            showDialog(mContext, "No Scanner Found", "Download a scanner code activity?", "Yes", "No").show();
-        }
-    }
-
-    //alert dialog for downloadDialog
-    private static AlertDialog showDialog(final Context act, CharSequence title, CharSequence message, CharSequence buttonYes, CharSequence buttonNo) {
-        AlertDialog.Builder downloadDialog = new AlertDialog.Builder(act);
-        downloadDialog.setTitle(title);
-        downloadDialog.setMessage(message);
-        downloadDialog.setPositiveButton(buttonYes, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Uri uri = Uri.parse("market://search?q=pname:" + "com.google.zxing.client.android");
-                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                try {
-                    act.startActivity(intent);
-                } catch (ActivityNotFoundException anfe) {
+    /**
+     * Get results of scanning and pass to EditText
+     */
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if (result != null) {
+            if (result.getContents() != null) {
+                isNetworkAvailable();
+                if(mHasNetwork){
+                    //Get the ean number
+                    String isbnNumber = result.getContents();
+                    ean.setText(isbnNumber);
 
                 }
-            }
-        });
-        downloadDialog.setNegativeButton(buttonNo, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialogInterface, int i) {
-            }
-        });
-        return downloadDialog.show();
-    }
-
-    //on ActivityResult method
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == 0) {
-            if (resultCode == Activity.RESULT_OK) {
-                //get the extras that are returned from the intent
-                mScanContents = intent.getStringExtra("SCAN_RESULT");
-                mScanFormat = intent.getStringExtra("SCAN_RESULT_FORMAT");
-                ean.setText(mScanContents);
             }
         }
     }
@@ -168,9 +139,16 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                 mContext = getActivity();
                 CharSequence text = "This button should let you scan a book for its barcode!";
                 int duration = Toast.LENGTH_SHORT;
-                scanBar();
-                Toast toast = Toast.makeText(mContext, text, duration);
-                toast.show();
+                //scanBar();
+                ArrayList<String> formats = new ArrayList<>();
+                formats.add("EAN_13");
+                IntentIntegrator.forSupportFragment(AddBook.this).setPrompt("Scan a barcode")
+                .setCameraId(0)
+                .setBeepEnabled(false)
+                .initiateScan();
+
+//                Toast toast = Toast.makeText(mContext, text, duration);
+//                toast.show();
 
             }
         });
