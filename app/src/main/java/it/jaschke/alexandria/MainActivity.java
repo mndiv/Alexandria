@@ -13,6 +13,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,20 +47,9 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        IS_TABLET = isTablet();
-//        if(IS_TABLET){
-//            setContentView(R.layout.activity_main);
-//        }else {
-            setContentView(R.layout.activity_main);
-//        }
+       setContentView(R.layout.activity_main);
 
-//        if(savedInstanceState == null){
-//            getSupportFragmentManager().beginTransaction()
-//                    .add(R.id.right_container, new DetailFragment())
-//                    .commit();
-//        }
-
-        Stetho.initialize(
+       Stetho.initialize(
                 Stetho.newInitializerBuilder(this)
                                     .enableDumpapp(
                                      Stetho.defaultDumperPluginsProvider(this))
@@ -90,19 +80,15 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         switch (position){
             default:
             case 0:
+                title = "ListOfBooks";
                 nextFragment = new ListOfBooks();
                 if(findViewById(R.id.right_container) != null){
                     getSupportFragmentManager().popBackStack();
                 }
                 break;
             case 1:
+                title = "AddBook";
                 nextFragment = new AddBook();
-                if(findViewById(R.id.right_container) != null){
-                    getSupportFragmentManager().popBackStack();
-                }
-                break;
-            case 2:
-                nextFragment = new About();
                 if(findViewById(R.id.right_container) != null){
                     getSupportFragmentManager().popBackStack();
                 }
@@ -186,8 +172,8 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
             id = R.id.right_container;
         }
         getSupportFragmentManager().beginTransaction()
-                .replace(id, fragment)
                 .addToBackStack("Book Detail")
+                .replace(id, fragment)
                 .commit();
 
     }
@@ -203,6 +189,12 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
     public void goBack(View view){
 
+        FragmentManager fm = getSupportFragmentManager();
+
+        for(int entry = fm.getBackStackEntryCount()-1; entry >=0; entry--){
+            Log.i("MainActivitiy", "Found fragment in goBack Method: " + fm.getBackStackEntryAt(entry).getName());
+        }
+
         getSupportFragmentManager().popBackStack();
     }
 
@@ -214,6 +206,13 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
     @Override
     public void onBackPressed() {
+
+        FragmentManager fm = getSupportFragmentManager();
+
+        for(int entry = fm.getBackStackEntryCount()-1; entry >=0; entry--){
+            Log.i("MainActivitiy", "Found fragment in onBackPressed Method: " + fm.getBackStackEntryAt(entry).getName());
+        }
+
         if(getSupportFragmentManager().getBackStackEntryCount()<2){
             finish();
         }

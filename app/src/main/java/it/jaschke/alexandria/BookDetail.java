@@ -1,6 +1,7 @@
 package it.jaschke.alexandria;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Build;
@@ -135,6 +136,12 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
     @Override
     public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
 
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        activity.setTitle(R.string.book_detail);
     }
 
     @Override
