@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.facebook.stetho.Stetho;
 
 import it.jaschke.alexandria.api.Callback;
@@ -152,6 +153,16 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
+        if (id == R.id.action_aboutApp) {
+
+            //Show About Dialog
+            new MaterialDialog.Builder(this)
+                    .title(R.string.action_aboutApp)
+                    .content(R.string.about_text)
+                    .positiveText(R.string.dialog_OK_text)
+                    .show();
+        }
+
 
         return super.onOptionsItemSelected(item);
     }
