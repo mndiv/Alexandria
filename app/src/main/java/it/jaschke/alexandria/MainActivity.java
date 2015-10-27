@@ -14,7 +14,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -53,6 +52,11 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         setContentView(R.layout.activity_main);
         //}
 
+
+        if(savedInstanceState != null) {
+            int index = savedInstanceState.getInt("index");
+            getActionBar().setSelectedNavigationItem(index);
+        }
 
         Stetho.initialize(
                 Stetho.newInitializerBuilder(this)
@@ -118,6 +122,12 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     }
 
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        int i = getSupportActionBar().getSelectedNavigationIndex();
+        outState.putInt("index", i);
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (!navigationDrawerFragment.isDrawerOpen()) {
@@ -197,11 +207,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
     public void goBack(View view) {
         FragmentManager fm = getSupportFragmentManager();
-
-        for (int entry = fm.getBackStackEntryCount() - 1; entry >= 0; entry--) {
-            Log.i("MainActivitiy", "GoBack(): " + fm.getBackStackEntryAt(entry).getName());
-        }
-
 
         if (getSupportFragmentManager().getBackStackEntryCount() > 0){
             boolean done = getSupportFragmentManager().popBackStackImmediate();

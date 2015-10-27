@@ -39,7 +39,7 @@ public class BookService extends IntentService {
     public static final String EAN = "it.jaschke.alexandria.services.extra.EAN";
 
     public BookService() {
-        super("Alexandria");
+        super("BookService");
     }
 
     @Override
