@@ -3,22 +3,17 @@ package it.jaschke.alexandria;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -26,15 +21,15 @@ import com.google.zxing.integration.android.IntentResult;
 
 import java.util.ArrayList;
 
-import it.jaschke.alexandria.data.AlexandriaContract;
+import it.jaschke.alexandria.api.Callback;
 import it.jaschke.alexandria.services.BookService;
-import it.jaschke.alexandria.services.DownloadImage;
 
 
-public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class AddBook extends Fragment {
     private boolean mHasNetwork;
     private static final String TAG = "INTENT_TO_SCAN_ACTIVITY";
     private EditText ean;
+    private Button searchView;
     private final int LOADER_ID = 1;
     private View rootView;
     private final String EAN_CONTENT = "eanContent";
@@ -52,6 +47,10 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     }
 
 
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+    }
 
     /**
      * Get results of scanning and pass to EditText
@@ -71,6 +70,10 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         }
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -78,7 +81,34 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         rootView = inflater.inflate(R.layout.fragment_add_book, container, false);
         ean = (EditText) rootView.findViewById(R.id.ean);
 
+        searchView = (Button)rootView.findViewById(R.id.search_button);
+        searchView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!validateIsbn()) return;
 
+                String isbnNumber = ean.getText().toString();
+                ean.setText("");
+                ean.setHint(R.string.input_hint);
+
+                isNetworkAvailable();
+                if (mHasNetwork) {
+                    Intent bookIntent = new Intent(getActivity(), BookService.class);
+                    bookIntent.putExtra(BookService.EAN, isbnNumber);
+                    bookIntent.setAction(BookService.FETCH_BOOK);
+                    getActivity().startService(bookIntent);
+
+                    ((Callback) getActivity()).onItemSelected(isbnNumber);
+                } else {
+                    Toast.makeText(getActivity(), R.string.empty_book_list_no_network,
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        ean.addTextChangedListener(new MyTextWatcher(ean));
+
+/*
         ean.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -98,7 +128,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                     ean = "978" + ean;
                 }
                 if (ean.length() < 13) {
-                    clearFields();
+                    //clearFields();
                     return;
                 }
                 isNetworkAvailable();
@@ -108,13 +138,18 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                     bookIntent.putExtra(BookService.EAN, ean);
                     bookIntent.setAction(BookService.FETCH_BOOK);
                     getActivity().startService(bookIntent);
-                    AddBook.this.restartLoader();
+
+                    ((Callback) getActivity()).onItemSelected(ean);
+                   // AddBook.this.restartLoader();
+                    Log.v("AddBook", "After Bookdetail");
+
                 } else {
                     Toast.makeText(getActivity(), R.string.empty_book_list_no_network,
                             Toast.LENGTH_SHORT).show();
                 }
             }
-        });
+        });*/
+
 
         rootView.findViewById(R.id.scan_button).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -137,32 +172,74 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
             }
         });
 
-        rootView.findViewById(R.id.save_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ean.setText("");
-            }
-        });
+//        rootView.findViewById(R.id.save_button).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                ean.setText("");
+//            }
+//        });
 
-        rootView.findViewById(R.id.delete_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent bookIntent = new Intent(getActivity(), BookService.class);
-                bookIntent.putExtra(BookService.EAN, ean.getText().toString());
-                bookIntent.setAction(BookService.DELETE_BOOK);
-                getActivity().startService(bookIntent);
-                ean.setText("");
-            }
-        });
+//        rootView.findViewById(R.id.delete_button).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent bookIntent = new Intent(getActivity(), BookService.class);
+//                bookIntent.putExtra(BookService.EAN, ean.getText().toString());
+//                bookIntent.setAction(BookService.DELETE_BOOK);
+//                getActivity().startService(bookIntent);
+//                ean.setText("");
+//            }
+//        });
 
         if (savedInstanceState != null) {
             ean.setText(savedInstanceState.getString(EAN_CONTENT));
-            ean.setHint("");
+            ean.setHint(R.string.input_hint);
         }
 
         return rootView;
     }
 
+    /**
+     * TextWatcher class to watch EditText
+     */
+    private class MyTextWatcher implements TextWatcher {
+
+        private final View view;
+
+        private MyTextWatcher(View view) {
+            this.view = view;
+        }
+
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        }
+
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        }
+
+        public void afterTextChanged(Editable editable) {
+            if (view.getId() == R.id.ean)
+                validateIsbn();
+        }
+    }
+
+    /**
+     * Helper method to validate ISBN
+     */
+    private boolean validateIsbn() {
+        String isbnNumber = ean.getText().toString();
+        if (isbnNumber.length() == 10 && !isbnNumber.startsWith("978")) {
+            isbnNumber = "978" + isbnNumber;
+        }
+        if(isbnNumber.length()<13){
+
+            //Toast.makeText(getActivity(),R.string.error_invalid_isbn_number,Toast.LENGTH_SHORT).show();
+            return false;
+        } else {
+
+            return true;
+        }
+    }
+
+    /*
     private void restartLoader() {
         getLoaderManager().restartLoader(LOADER_ID, null, this);
     }
@@ -223,6 +300,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
 
     }
+    */
 
     /**
      * Returns true if the network is available or about to become available.
@@ -236,15 +314,15 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                 activeNetwork.isConnectedOrConnecting();
     }
 
-    private void clearFields() {
-        ((TextView) rootView.findViewById(R.id.bookTitle)).setText("");
-        ((TextView) rootView.findViewById(R.id.bookSubTitle)).setText("");
-        ((TextView) rootView.findViewById(R.id.authors)).setText("");
-        ((TextView) rootView.findViewById(R.id.categories)).setText("");
-        rootView.findViewById(R.id.bookCover).setVisibility(View.INVISIBLE);
-        rootView.findViewById(R.id.save_button).setVisibility(View.INVISIBLE);
-        rootView.findViewById(R.id.delete_button).setVisibility(View.INVISIBLE);
-    }
+//    private void clearFields() {
+//        ((TextView) rootView.findViewById(R.id.bookTitle)).setText("");
+//        ((TextView) rootView.findViewById(R.id.bookSubTitle)).setText("");
+//        ((TextView) rootView.findViewById(R.id.authors)).setText("");
+//        ((TextView) rootView.findViewById(R.id.categories)).setText("");
+//        rootView.findViewById(R.id.bookCover).setVisibility(View.INVISIBLE);
+//        rootView.findViewById(R.id.save_button).setVisibility(View.INVISIBLE);
+//        rootView.findViewById(R.id.delete_button).setVisibility(View.INVISIBLE);
+//    }
 
     @Override
     public void onAttach(Activity activity) {

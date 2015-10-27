@@ -6,6 +6,7 @@
     <string name="books">List of Books</string>
     <string name="scan">Scan/Add a Book</string>
     <string name="about">About this App</string>
+    <string name="book_detail">Book Detail</string>
 
     <string name="navigation_drawer_open" >Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -36,4 +37,7 @@
     <string name="empty_book_list_no_network">No Book information available. The network is not available to fetch book</string>
     <string name="dialog_positive_button_text">OK</string>
     <string name="action_about">About</string>
+    <string name="search_text">Search</string>
+    <string name="or_text">/</string>
+    <string name="error_invalid_isbn_number">Invalid ISBN number. Must be 10 or 13 characters long.</string>
 </resources>

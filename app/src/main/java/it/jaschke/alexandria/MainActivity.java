@@ -14,6 +14,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,7 +31,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment navigationDrawerFragment;
-
 
 
     /**
@@ -85,12 +85,14 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
             default:
             case 0:
                 nextFragment = new ListOfBooks();
+                title = "ListOfBooks";
                 if (findViewById(R.id.right_container) != null) {
                     getSupportFragmentManager().popBackStack();
                 }
                 break;
             case 1:
                 nextFragment = new AddBook();
+                title = "AddBook";
                 if (findViewById(R.id.right_container) != null) {
                     getSupportFragmentManager().popBackStack();
                 }
@@ -149,7 +151,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                           // Toast.makeText, "Pressed OK", Toast.LENGTH_SHORT).show();
+                            // Toast.makeText, "Pressed OK", Toast.LENGTH_SHORT).show();
                         }
                     })
                     .show();
@@ -194,8 +196,16 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     }
 
     public void goBack(View view) {
+        FragmentManager fm = getSupportFragmentManager();
 
-        getSupportFragmentManager().popBackStack();
+        for (int entry = fm.getBackStackEntryCount() - 1; entry >= 0; entry--) {
+            Log.i("MainActivitiy", "GoBack(): " + fm.getBackStackEntryAt(entry).getName());
+        }
+
+
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0){
+            boolean done = getSupportFragmentManager().popBackStackImmediate();
+        }
     }
 
     private boolean isTablet() {
